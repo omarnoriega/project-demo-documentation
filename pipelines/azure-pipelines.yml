@@ -1,0 +1,74 @@
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+- none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- checkout: self
+  fetchDepth: 0
+#Preparar SonarCloud
+- task: SonarCloudPrepare@1
+  displayName: "Preparar SonarCloud"
+  inputs:
+    displayname: "Preparar SonarCloud"
+    SonarCloud: 'Sonar-Cloud'
+    organization: 'omar-noriega'
+    scannerMode: 'Other'
+    extraProperties: |
+      # Additional properties that will be passed to the scanner, 
+      # Put one key=value per line, example:
+      # sonar.exclusions=**/*.bin
+      sonar.projectKey=onoriega_kyndryl-workshop-devops
+      sonar.projectName=kyndryl-workshop-devops
+
+#Compilación con Maven
+- task: Maven@3
+  inputs:
+    displayName: "Compilar (Build) con Maven & Ejecutar análisis con SonarQube"
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    codeCoverageToolOption: 'JaCoCo'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.11'
+    mavenVersionOption: 'Default'
+    jdkArchitectureOption: 'x64'
+    mavenAuthenticateFeed: false
+    effectivePomSkip: false
+    sonarQubeRunAnalysis: true
+    isJacocoCoverageReportXML: true
+    sqMavenPluginVersionChoice: 'latest'
+    goals: 'package'
+
+- task: PublishTestResults@2
+  inputs:
+    displayName: "Publicar Resultados de Test"
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/TEST-*.xml'
+    testRunTitle: 'Resultados Testing'
+
+- task: SonarCloudPublish@1
+  inputs:
+    displayname: "Publicar Resultados en SonarCloud"
+    pollingTimeoutSec: '300'
+
+- task: Docker@2
+  inputs:
+    displayName: "Build Docker Image"
+    containerRegistry: 'docker-hub-omar'
+    repository: 'noriegadocker / kyndryl-workshop-ci'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+- task: InfracostSetup@2
+  displayName: Setup Infracost
+  inputs:
+    apiKey: 'ico-NGAgsuaIfwZLkdrKtEVSo4LrKA2yUVSm'
+    version: '0.10.x'
+    currency: 'COP'
