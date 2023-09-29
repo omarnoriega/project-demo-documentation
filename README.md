@@ -1,8 +1,8 @@
-# Proyecto Laboratorio Estrategia DevOps Para La DIAN
+# Proyecto Laboratorio Estrategia DevOps
 
 
 <!-- vscode-markdown-toc -->
-- [Proyecto Laboratorio Estrategia DevOps Para La DIAN](#proyecto-laboratorio-estrategia-devops-para-la-dian)
+- [Proyecto Laboratorio Estrategia DevOps](#proyecto-laboratorio-estrategia-devops)
   - [ Alcance del Proyecto](#-alcance-del-proyecto)
   - [ Estructura del Repositorio](#-estructura-del-repositorio)
       - [Carpeta docs](#carpeta-docs)
